@@ -1,0 +1,23 @@
+.row {
+  display: flex;
+}
+
+/* .grid {
+  align-items: center;
+} */
+
+.cell {
+  border-color: black;
+  border-width: 2px;
+  border-style: solid;
+  width: 35px;
+  height: 35px;
+}
+
+.goal_node {
+  background-color: rgb(18, 175, 18);
+}
+
+.start_node {
+  background-color: red;
+}
