@@ -2,7 +2,15 @@
 import PriorityQueue from "../PriorityQueue.js";
 import sscanf from "sscanf";
 
-function Search(start_node, goal_node, GRID_ROWS, GRID_COLS, WALLS, BOMBS) {
+function Search(
+  start_node,
+  goal_node,
+  GRID_ROWS,
+  GRID_COLS,
+  strategy,
+  WALLS,
+  BOMBS
+) {
   let results = {
     path: [],
     path_cost: 0,
@@ -10,9 +18,8 @@ function Search(start_node, goal_node, GRID_ROWS, GRID_COLS, WALLS, BOMBS) {
     expanded_count: 0,
     visitedNodes: [],
   };
-  debugger;
-  let strategy = "A*";
-  if (strategy === "bfs") {
+  // debugger;
+  if (strategy === "BFS") {
     let frontier = new PriorityQueue();
     let frontier_dir = new Map();
     //   let frontier_path_cost = new Map();
@@ -75,7 +82,7 @@ function Search(start_node, goal_node, GRID_ROWS, GRID_COLS, WALLS, BOMBS) {
       }
     }
   }
-  if (strategy === "ucs" || strategy === "A*" || strategy === "greedy") {
+  if (strategy === "UCS" || strategy === "A* Search" || strategy === "Greedy") {
     let frontier = new PriorityQueue();
     let frontier_dir = new Map();
     let frontier_path_cost = new Map();
@@ -112,7 +119,7 @@ function Search(start_node, goal_node, GRID_ROWS, GRID_COLS, WALLS, BOMBS) {
       for (let i = 0; i < successors(node, GRID_ROWS, GRID_COLS).length; i++) {
         let successor = successors(node, GRID_ROWS, GRID_COLS)[i][0];
         let successorDir = successors(node, GRID_ROWS, GRID_COLS)[i][1];
-        if (strategy === "ucs") {
+        if (strategy === "UCS") {
           parent.set(
             parentNodeToString(successor, successorDir),
             parentNodeToString(node, nodeDir)
@@ -146,7 +153,7 @@ function Search(start_node, goal_node, GRID_ROWS, GRID_COLS, WALLS, BOMBS) {
             );
             frontier_dir.set(nodeToString(successor), successorDir);
           }
-        } else if (strategy === "A*") {
+        } else if (strategy === "A* Search") {
           parent.set(
             parentNodeToString(successor, successorDir),
             parentNodeToString(node, nodeDir)
@@ -265,9 +272,9 @@ function stringToNode(str) {
   return node;
 }
 
-function parentStringToNode(str) {
-  let node = sscanf(str, "%d-%d-%d", "row", "col", "num");
-  return node;
-}
+// function parentStringToNode(str) {
+//   let node = sscanf(str, "%d-%d-%d", "row", "col", "num");
+//   return node;
+// }
 
 export default Search;

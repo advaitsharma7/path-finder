@@ -5,23 +5,20 @@ import Search from "./search/Search";
 import { Button, Menu, MenuItem } from "@material-ui/core";
 import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
 
-const START_ID = [5, 7];
-const GOAL_ID = [10, 12];
+let START_ID = [5, 7];
+let GOAL_ID = [10, 12];
 const WALLS = new Map();
 const BOMBS = new Map();
-WALLS.set("5-8", true);
-WALLS.set("5-6", true);
-WALLS.set("2-7", true);
-WALLS.set("6-7", true);
-const numRows = 20;
-const numCols = 20;
+const numRows = 15;
+const numCols = 40;
 
 function PathFinder() {
   const [nodeIDs, setNodeIDs] = useState([]);
   const [searchResult, setSearchResult] = useState([]);
+  const [modifyNodes, setModifyNodes] = useState("Modify Nodes");
   const [strategy, setStrategy] = useState("Select");
   const [selectWall, setSelectWall] = useState(false);
-  const [selectBomb, setSelectBomb] = useState(true);
+  const [selectBomb, setSelectBomb] = useState(false);
   const [selectStart, setSelectStart] = useState(false);
   const [selectGoal, setSelectGoal] = useState(false);
 
@@ -46,6 +43,39 @@ function PathFinder() {
     setNodeIDs(nodeIDs);
   }
 
+  function changeStrategy(strategy, f) {
+    f();
+    setStrategy(strategy);
+  }
+
+  function onClickModifyNodes(f, modify, name) {
+    f();
+    if (!modify) {
+      if (name === "start") {
+        setSelectStart(true);
+        setSelectGoal(false);
+        setSelectWall(false);
+        setSelectBomb(false);
+      } else if (name === "goal") {
+        setSelectStart(false);
+        setSelectGoal(true);
+        setSelectWall(false);
+        setSelectBomb(false);
+      } else if (name === "walls") {
+        setSelectStart(false);
+        setSelectGoal(false);
+        setSelectWall(true);
+        setSelectBomb(false);
+      } else {
+        setSelectStart(false);
+        setSelectGoal(false);
+        setSelectWall(false);
+        setSelectBomb(true);
+      }
+    }
+    console.log(selectBomb, selectWall);
+  }
+
   function setNode(i, j) {
     if (
       !(
@@ -53,6 +83,20 @@ function PathFinder() {
         (i === GOAL_ID[0] && j === GOAL_ID[1])
       )
     ) {
+      if (selectStart) {
+        let elem = document.getElementById(`node-${i}-${j}`);
+        elem.style.background = "red";
+        elem = document.getElementById(`node-${START_ID[0]}-${START_ID[1]}`);
+        elem.style.background = "white";
+        START_ID = [i, j];
+      }
+      if (selectGoal) {
+        let elem = document.getElementById(`node-${i}-${j}`);
+        elem.style.background = "green";
+        elem = document.getElementById(`node-${GOAL_ID[0]}-${GOAL_ID[1]}`);
+        elem.style.background = "white";
+        GOAL_ID = [i, j];
+      }
       if (selectWall) {
         WALLS.set(`${i}-${j}`, !WALLS.get(`${i}-${j}`));
         let elem = document.getElementById(`node-${i}-${j}`);
@@ -67,7 +111,7 @@ function PathFinder() {
           ? (elem.innerHTML = "B") &&
             (elem.style.textAlign = "center") &&
             (elem.style.fontWeight = "bold")
-          : (elem.style.backgroundColor = "white");
+          : (elem.innerHTML = "") && (elem.style.backgroundColor = "white");
       }
     }
   }
@@ -78,6 +122,7 @@ function PathFinder() {
       { row: GOAL_ID[0], col: GOAL_ID[1] },
       numRows,
       numCols,
+      strategy,
       WALLS,
       BOMBS
     );
@@ -99,8 +144,7 @@ function PathFinder() {
         elem.style.backgroundColor = "white";
       }
     }
-    console.log(searchRes);
-    let v = searchRes.visitedNodes;
+    let v = searchResult.visitedNodes;
 
     for (let i = 0; i < v.length; i++) {
       if (
@@ -131,27 +175,105 @@ function PathFinder() {
   }
   return (
     <div className="container">
-      <button onClick={() => visualizeVisited()}> visualizeVisited </button>
-      <button onClick={StartSearch}> Search </button>
-      <PopupState variant="popover" popupId="demo-popup-menu">
-        {(popupState) => (
-          <React.Fragment>
-            <Button
-              variant="contained"
-              // color="primary"
-              {...bindTrigger(popupState)}
-            >
-              {strategy}
-            </Button>
-            <Menu {...bindMenu(popupState)}>
-              <MenuItem onClick={popupState.close}>UCS</MenuItem>
-              <MenuItem onClick={popupState.close}>BFS</MenuItem>
-              <MenuItem onClick={popupState.close}>A* Search</MenuItem>
-              <MenuItem onClick={popupState.close}>Greedy</MenuItem>
-            </Menu>
-          </React.Fragment>
-        )}
-      </PopupState>
+      <div className="buttons">
+        {/* <div className="selectStrategy"> */}
+        <PopupState variant="popover" popupId="demo-popup-menu">
+          {(popupState) => (
+            <React.Fragment>
+              <Button
+                variant="contained"
+                // color="primary"
+                {...bindTrigger(popupState)}
+              >
+                {strategy}
+              </Button>
+              <Menu {...bindMenu(popupState)}>
+                <MenuItem
+                  onClick={() => {
+                    changeStrategy("UCS", popupState.close);
+                  }}
+                >
+                  UCS
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    changeStrategy("BFS", popupState.close);
+                  }}
+                >
+                  BFS
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    changeStrategy("A* Search", popupState.close);
+                  }}
+                >
+                  A* Search
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    changeStrategy("Greedy", popupState.close);
+                  }}
+                >
+                  Greedy
+                </MenuItem>
+              </Menu>
+            </React.Fragment>
+          )}
+        </PopupState>
+        <PopupState variant="popover" popupId="demo-popup-menu">
+          {(popupState) => (
+            <React.Fragment>
+              <Button
+                variant="contained"
+                // color="primary"
+                {...bindTrigger(popupState)}
+              >
+                {modifyNodes}
+              </Button>
+              <Menu {...bindMenu(popupState)}>
+                <MenuItem
+                  onClick={() => {
+                    onClickModifyNodes(popupState.close, selectStart, "start");
+                    setModifyNodes("Modify Start Node");
+                  }}
+                >
+                  Modify Start Node
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    onClickModifyNodes(popupState.close, selectGoal, "goal");
+                    setModifyNodes("Modify Goal Node");
+                  }}
+                >
+                  Set Goal Node
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    onClickModifyNodes(popupState.close, selectWall, "walls");
+                    setModifyNodes("Modify Walls");
+                  }}
+                >
+                  Modify Walls
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    onClickModifyNodes(popupState.close, selectBomb, "bombs");
+                    setModifyNodes("Modify Bombs");
+                  }}
+                >
+                  Modify Bombs
+                </MenuItem>
+              </Menu>
+            </React.Fragment>
+          )}
+        </PopupState>
+
+        {/* </div> */}
+        <Button variant="contained" color="primary" onClick={StartSearch}>
+          {" "}
+          Search{" "}
+        </Button>
+      </div>
       <div className="grid">
         {nodeIDs.map((row) => (
           <div className="row">

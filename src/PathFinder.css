@@ -2,9 +2,24 @@
   display: flex;
 }
 
-/* .grid {
+.buttons {
   align-items: center;
-} */
+  align-content: center;
+  text-align: center;
+  padding: 1%;
+}
+
+.tst1 {
+  text-align: center;
+  align-items: center;
+  align-content: center;
+}
+
+.grid {
+  /* padding-top: 50px; */
+  align-content: center;
+  padding: auto;
+}
 
 .cell {
   border-color: black;
@@ -12,6 +27,7 @@
   border-style: solid;
   width: 35px;
   height: 35px;
+  min-width: 30px;
 }
 
 .goal_node {
