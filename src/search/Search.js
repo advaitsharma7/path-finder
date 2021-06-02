@@ -2,7 +2,7 @@
 import PriorityQueue from "../PriorityQueue.js";
 import sscanf from "sscanf";
 
-function Search(start_node, goal_node, GRID_ROWS, GRID_COLS, WALLS) {
+function Search(start_node, goal_node, GRID_ROWS, GRID_COLS, WALLS, BOMBS) {
   let results = {
     path: [],
     path_cost: 0,
@@ -11,7 +11,7 @@ function Search(start_node, goal_node, GRID_ROWS, GRID_COLS, WALLS) {
     visitedNodes: [],
   };
   debugger;
-  let strategy = "bfs";
+  let strategy = "A*";
   if (strategy === "bfs") {
     let frontier = new PriorityQueue();
     let frontier_dir = new Map();
@@ -75,7 +75,7 @@ function Search(start_node, goal_node, GRID_ROWS, GRID_COLS, WALLS) {
       }
     }
   }
-  if (strategy === "ucs") {
+  if (strategy === "ucs" || strategy === "A*" || strategy === "greedy") {
     let frontier = new PriorityQueue();
     let frontier_dir = new Map();
     let frontier_path_cost = new Map();
@@ -112,40 +112,109 @@ function Search(start_node, goal_node, GRID_ROWS, GRID_COLS, WALLS) {
       for (let i = 0; i < successors(node, GRID_ROWS, GRID_COLS).length; i++) {
         let successor = successors(node, GRID_ROWS, GRID_COLS)[i][0];
         let successorDir = successors(node, GRID_ROWS, GRID_COLS)[i][1];
-        parent.set(
-          parentNodeToString(successor, successorDir),
-          parentNodeToString(node, nodeDir)
-        );
-        if (
-          frontier.get(nodeToString(successor)) === -1 &&
-          explored.get(nodeToString(successor)) === undefined
-        ) {
-          frontier.add(
-            nodeToString(successor),
-            frontier_path_cost.get(nodeToString(node)) + 1
+        if (strategy === "ucs") {
+          parent.set(
+            parentNodeToString(successor, successorDir),
+            parentNodeToString(node, nodeDir)
           );
-          frontier_path_cost.set(
-            nodeToString(successor),
-            frontier_path_cost.get(nodeToString(node)) + 1
+          if (
+            frontier.get(nodeToString(successor)) === -1 &&
+            explored.get(nodeToString(successor)) === undefined
+          ) {
+            frontier.add(
+              nodeToString(successor),
+              frontier_path_cost.get(nodeToString(node)) + 1
+            );
+            frontier_path_cost.set(
+              nodeToString(successor),
+              frontier_path_cost.get(nodeToString(node)) + 1
+            );
+            results.frontier_count += 1;
+            frontier_dir.set(nodeToString(successor), successorDir);
+          } else if (
+            frontier.get(nodeToString(successor)) !== -1 &&
+            frontier_path_cost.get(nodeToString(successor)) >
+              frontier_path_cost.get(nodeToString(node)) + 1
+          ) {
+            frontier.add(
+              nodeToString(successor),
+              frontier_path_cost.get(nodeToString(node)) + 1
+            );
+            frontier_path_cost.set(
+              nodeToString(successor),
+              frontier_path_cost.get(nodeToString(node)) + 1
+            );
+            frontier_dir.set(nodeToString(successor), successorDir);
+          }
+        } else if (strategy === "A*") {
+          parent.set(
+            parentNodeToString(successor, successorDir),
+            parentNodeToString(node, nodeDir)
           );
-          frontier_dir.set(nodeToString(successor), successorDir);
-          results.frontier_count += 1;
-          frontier_dir.set(nodeToString(successor), successorDir);
-        } else if (
-          frontier.get(nodeToString(successor)) !== -1 &&
-          frontier_path_cost.get(nodeToString(successor)) >
-            frontier_path_cost.get(nodeToString(node)) + 1
-        ) {
-          frontier.add(
-            nodeToString(successor),
-            frontier_path_cost.get(nodeToString(node)) + 1
+          if (
+            frontier.get(nodeToString(successor)) === -1 &&
+            explored.get(nodeToString(successor)) === undefined
+          ) {
+            frontier.add(
+              nodeToString(successor),
+              frontier_path_cost.get(nodeToString(node)) +
+                1 +
+                h(node, goal_node, BOMBS)
+            );
+            frontier_path_cost.set(
+              nodeToString(successor),
+              frontier_path_cost.get(nodeToString(node)) + 1
+            );
+            results.frontier_count += 1;
+            frontier_dir.set(nodeToString(successor), successorDir);
+          } else if (
+            frontier.get(nodeToString(successor)) !== -1 &&
+            frontier_path_cost.get(nodeToString(successor)) >
+              frontier_path_cost.get(nodeToString(node)) +
+                1 +
+                h(node, goal_node, BOMBS)
+          ) {
+            frontier.add(
+              nodeToString(successor),
+              frontier_path_cost.get(nodeToString(node)) +
+                1 +
+                h(node, goal_node, BOMBS)
+            );
+            frontier_path_cost.set(
+              nodeToString(successor),
+              frontier_path_cost.get(nodeToString(node)) + 1
+            );
+            frontier_dir.set(nodeToString(successor), successorDir);
+          }
+        } else {
+          //Greedy Search
+          parent.set(
+            parentNodeToString(successor, successorDir),
+            parentNodeToString(node, nodeDir)
           );
-          frontier_path_cost.set(
-            nodeToString(successor),
-            frontier_path_cost.get(nodeToString(node)) + 1
-          );
-          frontier_dir.set(nodeToString(successor), successorDir);
-          frontier_dir.set(nodeToString(successor), successorDir);
+          if (
+            frontier.get(nodeToString(successor)) === -1 &&
+            explored.get(nodeToString(successor)) === undefined
+          ) {
+            frontier.add(nodeToString(successor), h(node, goal_node, BOMBS));
+            frontier_path_cost.set(
+              nodeToString(successor),
+              frontier_path_cost.get(nodeToString(node)) + 1
+            );
+            results.frontier_count += 1;
+            frontier_dir.set(nodeToString(successor), successorDir);
+          } else if (
+            frontier.get(nodeToString(successor)) !== -1 &&
+            frontier_path_cost.get(nodeToString(successor)) >
+              h(node, goal_node, BOMBS)
+          ) {
+            frontier.add(nodeToString(successor), h(node, goal_node, BOMBS));
+            frontier_path_cost.set(
+              nodeToString(successor),
+              frontier_path_cost.get(nodeToString(node)) + 1
+            );
+            frontier_dir.set(nodeToString(successor), successorDir);
+          }
         }
       }
     }
@@ -169,6 +238,18 @@ function successors(node, GRID_ROWS, GRID_COLS) {
     succ.push([{ row: row, col: col + 1 }, "right"]);
   }
   return succ;
+}
+
+//euclidian heuristic
+function h(node, goal_node, BOMBS) {
+  let cost = 0;
+  if (BOMBS.get(`${node.row}-${node.col}`) === true) {
+    cost += 5;
+  }
+  cost +=
+    ((node.row - goal_node.row) ** 2 + (node.col - goal_node.col) ** 2) **
+    (1 / 2);
+  return cost;
 }
 
 function nodeToString(node) {

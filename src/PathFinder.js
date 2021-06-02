@@ -8,6 +8,7 @@ import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
 const START_ID = [5, 7];
 const GOAL_ID = [10, 12];
 const WALLS = new Map();
+const BOMBS = new Map();
 WALLS.set("5-8", true);
 WALLS.set("5-6", true);
 WALLS.set("2-7", true);
@@ -19,6 +20,10 @@ function PathFinder() {
   const [nodeIDs, setNodeIDs] = useState([]);
   const [searchResult, setSearchResult] = useState([]);
   const [strategy, setStrategy] = useState("Select");
+  const [selectWall, setSelectWall] = useState(false);
+  const [selectBomb, setSelectBomb] = useState(true);
+  const [selectStart, setSelectStart] = useState(false);
+  const [selectGoal, setSelectGoal] = useState(false);
 
   useEffect(() => {
     gridInit();
@@ -33,19 +38,38 @@ function PathFinder() {
       let row = [];
       for (let j = 0; j < numCols; j++) {
         row.push({ rowID: i, colID: j });
-        // WALLS.set(`${i}-${j}`, false);
+        WALLS.set(`${i}-${j}`, false);
+        BOMBS.set(`${i}-${j}`, false);
       }
       nodeIDs.push(row);
     }
     setNodeIDs(nodeIDs);
   }
 
-  function setWall(i, j) {
-    WALLS.set(`${i}-${j}`, !WALLS.get(`${i}-${j}`));
-    let elem = document.getElementById(`node-${i}-${j}`);
-    WALLS.get(`${i}-${j}`)
-      ? (elem.style.backgroundColor = "#666666")
-      : (elem.style.backgroundColor = "white");
+  function setNode(i, j) {
+    if (
+      !(
+        (i === START_ID[0] && j === START_ID[1]) ||
+        (i === GOAL_ID[0] && j === GOAL_ID[1])
+      )
+    ) {
+      if (selectWall) {
+        WALLS.set(`${i}-${j}`, !WALLS.get(`${i}-${j}`));
+        let elem = document.getElementById(`node-${i}-${j}`);
+        WALLS.get(`${i}-${j}`)
+          ? (elem.style.backgroundColor = "#666666")
+          : (elem.style.backgroundColor = "white");
+      }
+      if (selectBomb) {
+        BOMBS.set(`${i}-${j}`, !BOMBS.get(`${i}-${j}`));
+        let elem = document.getElementById(`node-${i}-${j}`);
+        BOMBS.get(`${i}-${j}`)
+          ? (elem.innerHTML = "B") &&
+            (elem.style.textAlign = "center") &&
+            (elem.style.fontWeight = "bold")
+          : (elem.style.backgroundColor = "white");
+      }
+    }
   }
 
   async function StartSearch() {
@@ -54,10 +78,10 @@ function PathFinder() {
       { row: GOAL_ID[0], col: GOAL_ID[1] },
       numRows,
       numCols,
-      WALLS
+      WALLS,
+      BOMBS
     );
     searchRes ? await visualizeVisited(searchRes) : console.log();
-    searchRes ? setSearchResult(searchRes) : console.log();
   }
 
   async function visualizeVisited(searchRes) {
@@ -67,7 +91,7 @@ function PathFinder() {
         if (
           (i === START_ID[0] && j === START_ID[1]) ||
           (i === GOAL_ID[0] && j === GOAL_ID[1]) ||
-          WALLS.get(`${i}-${j}`) !== undefined
+          WALLS.get(`${i}-${j}`) === true
         ) {
           continue;
         }
@@ -133,7 +157,7 @@ function PathFinder() {
           <div className="row">
             {row.map(({ rowID, colID }) => (
               <div
-                onClick={() => setWall(rowID, colID)}
+                onClick={() => setNode(rowID, colID)}
                 id={`node-${rowID}-${colID}`}
                 className={`cell ${
                   (rowID === START_ID[0] &&
@@ -147,7 +171,7 @@ function PathFinder() {
               >
                 {/* {document
                   .getElementById(`node-${rowID}-${colID}`)
-                  .addEventListener("click", setWall(rowID, colID))} */}
+                  .addEventListener("click", setNode(rowID, colID))} */}
                 <Node row={rowID} col={colID} />
               </div>
             ))}
