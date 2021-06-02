@@ -2,7 +2,7 @@
 import PriorityQueue from "../PriorityQueue.js";
 import sscanf from "sscanf";
 
-function Search(start_node, goal_node, GRID_ROWS, GRID_COLS) {
+function Search(start_node, goal_node, GRID_ROWS, GRID_COLS, WALLS) {
   let results = {
     path: [],
     path_cost: 0,
@@ -11,7 +11,7 @@ function Search(start_node, goal_node, GRID_ROWS, GRID_COLS) {
     visitedNodes: [],
   };
   debugger;
-  let strategy = "ucs";
+  let strategy = "bfs";
   if (strategy === "bfs") {
     let frontier = new PriorityQueue();
     let frontier_dir = new Map();
@@ -31,7 +31,11 @@ function Search(start_node, goal_node, GRID_ROWS, GRID_COLS) {
     while (!frontier.isEmpty()) {
       // console.log(results.expanded_count, results.frontier_count);
       let node = stringToNode(frontier.pop());
+      if (WALLS.get(`${node.row}-${node.col}`) === true) {
+        continue;
+      }
       let nodeDir = frontier_dir.get(nodeToString(node));
+
       // console.log(node);
       explored.set(nodeToString(node), node);
       results.visitedNodes.push(node);
@@ -84,6 +88,9 @@ function Search(start_node, goal_node, GRID_ROWS, GRID_COLS) {
     results.frontier_count += 1;
     while (!frontier.isEmpty()) {
       let node = stringToNode(frontier.pop());
+      if (WALLS.get(`${node.row}-${node.col}`) === true) {
+        continue;
+      }
       let nodeDir = frontier_dir.get(nodeToString(node));
       // console.log(node);
       explored.set(nodeToString(node), node);

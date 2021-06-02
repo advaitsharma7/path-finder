@@ -21,3 +21,7 @@
 .start_node {
   background-color: red;
 }
+
+.wall_node {
+  background-color: rgba(0, 0, 0, 0.61);
+}
