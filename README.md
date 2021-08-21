@@ -20,3 +20,7 @@ Created a modified Priority Queue Class using python heapq module to implement t
 - Path Nodes are represented by Yellow Cells
 - Bomb Nodes have a negative weight associated with them so passing through these nodes is costly. These are represented by B Letter Cells
 - Wall Nodes are the nodes that the path should not include and are represented by Dark Gray Cells
+
+### **Author**
+
+Advait Sharma
