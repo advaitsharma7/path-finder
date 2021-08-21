@@ -144,8 +144,7 @@ function PathFinder() {
         elem.style.backgroundColor = "white";
       }
     }
-    let v = searchResult.visitedNodes;
-
+    let v = searchRes.visitedNodes;
     for (let i = 0; i < v.length; i++) {
       if (
         (v[i].row === START_ID[0] && v[i].col === START_ID[1]) ||
