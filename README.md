@@ -1,5 +1,4 @@
 ## **Path Finder Visualizer**
----
 
 **Live Preview:** [https://path-finder-ee6d3.web.app/](https://path-finder-ee6d3.web.app/)
 
@@ -8,14 +7,12 @@ Utilized A\*, Uniform Cost search, Greedy Best First Search and Breadth First Se
 Created a modified Priority Queue Class using python heapq module to implement these algorithms.
 
 ### **Prerequisites**
----
 
 - Knowledge about Searching Algorithms
 - HTML/CSS/JS
 - OOPs Programming
 
 ### **Functionality**
----
 
 - Start Node is represented by Red Cell
 - Goal Node is represented by Green Cell
